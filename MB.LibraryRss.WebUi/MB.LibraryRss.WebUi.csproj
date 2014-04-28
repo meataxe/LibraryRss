@@ -66,25 +66,25 @@
       <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.SqlServer.ConnectionInfo, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.SqlServer.ConnectionInfo, Version=12.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\SMO\110\Microsoft.SqlServer.ConnectionInfo.dll</HintPath>
+      <HintPath>References\SMO\112\Microsoft.SqlServer.ConnectionInfo.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.SqlServer.Management.Sdk.Sfc, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.SqlServer.Management.Sdk.Sfc, Version=12.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\SMO\110\Microsoft.SqlServer.Management.Sdk.Sfc.dll</HintPath>
+      <HintPath>References\SMO\112\Microsoft.SqlServer.Management.Sdk.Sfc.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.SqlServer.Smo, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.SqlServer.Smo, Version=12.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\SMO\110\Microsoft.SqlServer.Smo.dll</HintPath>
+      <HintPath>References\SMO\112\Microsoft.SqlServer.Smo.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.SqlServer.SqlClrProvider, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.SqlServer.SqlClrProvider, Version=12.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\SMO\110\Microsoft.SqlServer.SqlClrProvider.dll</HintPath>
+      <HintPath>References\SMO\112\Microsoft.SqlServer.SqlClrProvider.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.SqlServer.SqlEnum, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.SqlServer.SqlEnum, Version=12.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\SMO\110\Microsoft.SqlServer.SqlEnum.dll</HintPath>
+      <HintPath>References\SMO\112\Microsoft.SqlServer.SqlEnum.dll</HintPath>
     </Reference>
     <Reference Include="QDFeedParser, Version=1.1.0.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -201,6 +201,7 @@
     <Compile Include="Interfaces\ITitleAnalysisService.cs" />
     <Compile Include="Interfaces\ITitleSearchService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="References\SMO\112\Microsoft.SqlServer.SqlClrProvider.dll" />
     <Content Include="Views\Home\Test.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -224,11 +225,6 @@
     <Content Include="Assets\fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Assets\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="Assets\fonts\glyphicons-halflings-regular.woff" />
-    <Content Include="References\SMO\110\Microsoft.SqlServer.ConnectionInfo.dll" />
-    <Content Include="References\SMO\110\Microsoft.SqlServer.Management.Sdk.Sfc.dll" />
-    <Content Include="References\SMO\110\Microsoft.SqlServer.Smo.dll" />
-    <Content Include="References\SMO\110\Microsoft.SqlServer.SqlClrProvider.dll" />
-    <Content Include="References\SMO\110\Microsoft.SqlServer.SqlEnum.dll" />
     <Content Include="References\SMO\112\Microsoft.SqlServer.ConnectionInfo.dll" />
     <Content Include="References\SMO\112\Microsoft.SqlServer.Management.Sdk.Sfc.dll" />
     <Content Include="References\SMO\112\Microsoft.SqlServer.Smo.dll" />
