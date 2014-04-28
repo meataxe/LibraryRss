@@ -21,6 +21,11 @@
       return this.View(this.persistanceService.GetLatest());
     }
 
+    public ActionResult Test()
+    {
+      return this.View();
+    }
+
     [System.Web.Http.HttpGet, System.Web.Http.HttpPost]
     public JsonResult RefreshTitles()
     {

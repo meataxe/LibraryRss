@@ -201,6 +201,7 @@
     <Compile Include="Interfaces\ITitleAnalysisService.cs" />
     <Compile Include="Interfaces\ITitleSearchService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="Views\Home\Test.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\css\bootstrap-theme.css" />
