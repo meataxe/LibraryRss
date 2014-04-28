@@ -1,0 +1,113 @@
+﻿@using MB.LibraryRss.WebUi.Infrastructure.Helpers
+@model List<MB.LibraryRss.WebUi.Domain.TitleResult>
+
+@{
+  ViewBag.Title = "New Titles";
+}
+
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th colspan="4">
+        <h3>
+          @ViewBag.Title <button type="button" class="btn btn-info btn-xs" id="refresh">Refresh</button>
+        </h3>             
+      </th>
+    </tr>  
+  </thead>
+  <tbody>    
+  </tbody>
+</table>
+
+<div id="list-wrapper" style="margin-top: -22px; font-size: 11px;">
+  <div id="title-table"></div>
+</div> 
+
+@section scripts
+{
+  <script>
+    $(document).ready(function() {      
+      var initPage = function (model) {
+        if (model) {
+          initGrid(model);
+        } else {
+          refreshDbAndUpdateGrid();
+        }
+      };
+
+      var refreshDbAndUpdateGrid = function() {
+        $.ajax({
+          url: '/Home/RefreshTitles'
+        }).done(function(data) {
+          initGrid(data.Data);
+        });
+      };
+
+      var initGrid = function (data) {
+        $("#title-table").kendoGrid({
+          dataSource: {
+            data: data,
+            schema: {
+              type: "json",
+              model: {
+                fields: {
+                  Title: { type: "string" },
+                  Author: { type: "string" },
+                  Id: { type: "string" },
+                  Url: { type: "string" },
+                  DatePublished: { type: "date" },
+                  Content: { type: "string" },
+                  Isbn: { type: "string" },
+                  SubjectTermsString: { type: "string" },
+                  ImageUrl: { type: "string" },
+                  ShelfLocation: { type: "string" },
+                  SmallImageUrl: { type: "string" },
+                  ShelfLocationScore: { type: "number" },
+                  IsNonFiction: { type: "string" }
+                }
+              }
+            }
+          },
+          height: 800,
+          scrollable: true,
+          sortable: true,
+          filterable: { extra: false },                    
+          navigatable: true,
+          reorderable: true,
+          columns: [{
+            field: "Title",
+            template: "<a target='_' href='#=Url#'>#=Title#</a>"
+          }, {
+            field: "Author"
+          }, {
+            field: "SubjectTermsString",
+            title: "Subject"
+          }, {
+            field: "ShelfLocation",
+            title: "Shelf Location"
+          }, {
+            field: "IsNonFiction",
+            title: "Non-Fiction"
+          }, {
+            field: "ShelfLocationScore",
+            title: "Score"            
+          }
+          /*
+            , {
+            field: "SmallImageUrl",
+            title: "Image",
+            template: "<img src='#=SmallImageUrl#'>"
+          }
+          */
+          ]
+        });
+      };
+
+      $("#refresh").on("click", function () {
+        refreshDbAndUpdateGrid();
+      });
+
+      initPage(@Model.ToJson());
+    });
+  </script>
+}
