@@ -1,6 +1,5 @@
 ﻿namespace MB.LibraryRss.WebUi.Controllers
 {
-  using System;
   using System.Web.Mvc;
 
   using MB.LibraryRss.WebUi.Interfaces;
@@ -19,14 +18,7 @@
 
     public ActionResult Index()
     {
-      try
-      {
-        return this.View(this.persistanceService.GetLatest());
-      }
-      catch (Exception)
-      {
-        return this.View();
-      }
+      return this.View(this.persistanceService.GetLatest());
     }
 
     public ActionResult Test()
