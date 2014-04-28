@@ -27,6 +27,8 @@
 {
   <script>
     $(document).ready(function() {      
+      var gridHeight = 0.8 * $(window).height();
+
       var initPage = function (model) {
         if (model) {
           initGrid(model);
@@ -68,7 +70,7 @@
               }
             }
           },
-          height: 800,
+          height: gridHeight,
           scrollable: true,
           sortable: true,
           filterable: { extra: false },                    
