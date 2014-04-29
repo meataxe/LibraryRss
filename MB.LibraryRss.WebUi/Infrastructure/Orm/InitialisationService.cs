@@ -1,35 +1,23 @@
 ﻿namespace MB.LibraryRss.WebUi.Infrastructure.Orm
 {
   using System;
+  using System.Collections.Generic;
   using System.Data;
   using System.Data.SqlClient;
   using System.Diagnostics.CodeAnalysis;
   using System.Text;
-  using System.Transactions;
 
-  using MB.LibraryRss.WebUi.Interfaces;
-
-  using Microsoft.SqlServer.Management.Common;
-  using Microsoft.SqlServer.Management.Smo;
-
-  using IsolationLevel = System.Transactions.IsolationLevel;
+  using MB.LibraryRss.WebUi.Interfaces;  
 
   public class InitialisationService : IInitialisationService
   {
     private readonly IConnectionService connectionService;
-
-    private readonly string initSql;
-
-    private readonly string clearSql;
 
     private bool isInitialised;
 
     public InitialisationService(IConnectionService connectionService)
     {
       this.connectionService = connectionService;
-      
-      this.initSql = GetInitSql();
-      this.clearSql = GetClearSql();
     }
 
     /*
@@ -71,20 +59,6 @@
         
         // Failure: Unable to init, no exceptions thrown so far, can't further diagnose automatically
         throw new ApplicationException("Unable to initialise database");                
-      }
-    }
-
-    private static bool IsDatabaseInitialised(SqlConnection connection)
-    {
-      using (var cmd = new SqlCommand("SELECT COUNT(*) AS TableExists FROM sys.tables WHERE name = 'Element'", connection) { CommandType = CommandType.Text })
-      {
-        cmd.ExecuteScalar();
-
-        using (var rdr = cmd.ExecuteReader())
-        {
-          rdr.Read();
-          return int.Parse(rdr[0].ToString()) == 1;
-        }
       }
     }
 
@@ -298,23 +272,31 @@
       return b.ToString();
     }
 
-    private static void ExecuteTransactionScopedNonQuery(SqlConnection connection, string sql)
+    private static bool IsDatabaseInitialised(SqlConnection connection)
     {
-      var options = new TransactionOptions
+      using (var cmd = new SqlCommand("SELECT COUNT(*) AS TableExists FROM sys.tables WHERE name = 'Element'", connection) { CommandType = CommandType.Text })
       {
-        IsolationLevel = IsolationLevel.ReadCommitted,
-        Timeout = TimeSpan.FromMinutes(1)
-      };
+        cmd.ExecuteScalar();
 
-      using (var transaction = new TransactionScope(TransactionScopeOption.Required, options))
-      {
-        var server = new Server(new ServerConnection(connection));
-
-        server.ConnectionContext.SqlConnectionObject.EnlistTransaction(Transaction.Current);
-        server.ConnectionContext.ExecuteNonQuery(sql);
-
-        transaction.Complete();
+        using (var rdr = cmd.ExecuteReader())
+        {
+          rdr.Read();
+          return int.Parse(rdr[0].ToString()) == 1;
+        }
       }
+    }
+
+    private static void ExecuteNonQuery(SqlConnection connection, SqlTransaction transaction, string sql)
+    {
+      using (var cmd = new SqlCommand(sql, connection) { CommandType = CommandType.Text, Transaction = transaction })
+      {
+        cmd.ExecuteNonQuery();
+      }
+    }
+
+    private static IEnumerable<string> SplitStatements(string sql)
+    {
+      return sql.Split(new[] { "GO" }, StringSplitOptions.RemoveEmptyEntries);
     }
 
     private void RefreshInitialisationStatus(SqlConnection connection)
@@ -324,13 +306,32 @@
 
     private void InitialiseDatabase(SqlConnection connection)
     {
-      ExecuteTransactionScopedNonQuery(connection, this.initSql);
+      // ExecuteTransactionScopedNonQuery(connection, this.initSql);
+      using (var transaction = connection.BeginTransaction())
+      {
+        foreach (var statement in SplitStatements(GetInitSql()))
+        {
+          ExecuteNonQuery(connection, transaction, statement);
+        }        
+
+        transaction.Commit();
+      }
+
       this.RefreshInitialisationStatus(connection);
     }
 
     private void ClearDatabase(SqlConnection connection)
     {
-      ExecuteTransactionScopedNonQuery(connection, this.clearSql);
+      // ExecuteTransactionScopedNonQuery(connection, this.clearSql);
+      using (var transaction = connection.BeginTransaction())
+      {
+        foreach (var statement in SplitStatements(GetClearSql()))
+        {
+          ExecuteNonQuery(connection, transaction, statement);
+        }
+
+        transaction.Commit();
+      }      
       
       // Might not actually be cleared, but the app should treat it as such.
       this.isInitialised = false;
