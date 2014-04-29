@@ -4,10 +4,14 @@
   using System.Web;
 
   using global::Autofac;
+
   using global::Autofac.Integration.Mvc;
+
   using global::Autofac.Integration.WebApi;
 
-  using Module = global::Autofac.Module;
+  using MB.LibraryRss.WebUi.Domain;
+  using MB.LibraryRss.WebUi.Infrastructure.Core;
+  using MB.LibraryRss.WebUi.Interfaces;
 
   public class WebUiModule : Module
   {

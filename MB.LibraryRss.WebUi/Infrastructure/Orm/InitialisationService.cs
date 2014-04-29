@@ -24,16 +24,22 @@
      * The purpose of this method is to test if the db contains the required objects
      * and if not, to create them.
      */
-    public void EnsureDatabaseIsInitialised()
+    public void EnsureDatabaseIsInitialised(bool forceInitialisation = false)
     {
-      if (this.isInitialised)
+      if (!forceInitialisation && this.isInitialised)
       {        
         return;
       }
 
       using (var connection = this.connectionService.GetConnection())
       {
-        connection.Open();
+        connection.Open(); 
+        
+        // Allow resetting the db outside of normal operation, in case of schema changes
+        if (forceInitialisation)
+        {
+          this.ClearDatabase(connection);
+        }
 
         // Best case: db is initialised and ready to use
         this.RefreshInitialisationStatus(connection);
@@ -67,6 +73,12 @@
     private static string GetClearSql()
     {
       var b = new StringBuilder();
+      b.AppendLine("IF OBJECT_ID('Control') IS NOT NULL");
+      b.AppendLine("  BEGIN");
+      b.AppendLine("    DROP TABLE [Control]");
+      b.AppendLine("  END");
+      b.AppendLine("GO");
+      b.AppendLine("");
       b.AppendLine("IF OBJECT_ID('Element') IS NOT NULL");
       b.AppendLine("  BEGIN");
       b.AppendLine("    DROP TABLE [Element]");
@@ -117,6 +129,26 @@
       b.AppendLine("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE");
       b.AppendLine("GO");
       b.AppendLine("BEGIN TRANSACTION");
+      b.AppendLine("GO");
+      b.AppendLine("PRINT N'Creating [dbo].[Control]'");
+      b.AppendLine("GO");
+      b.AppendLine("CREATE TABLE [Control]");
+      b.AppendLine("  (");
+      b.AppendLine("    [LastUpdated] [datetime] NULL");
+      b.AppendLine("  )");
+      b.AppendLine("GO");
+      b.AppendLine("IF @@ERROR <> 0");
+      b.AppendLine("  AND @@TRANCOUNT > 0");
+      b.AppendLine("  ROLLBACK TRANSACTION");
+      b.AppendLine("GO");
+      b.AppendLine("IF @@TRANCOUNT = 0");
+      b.AppendLine("  BEGIN");
+      b.AppendLine("    INSERT  INTO #tmpErrors");
+      b.AppendLine("            ( Error )");
+      b.AppendLine("            SELECT");
+      b.AppendLine("              1");
+      b.AppendLine("    BEGIN TRANSACTION");
+      b.AppendLine("  END");
       b.AppendLine("GO");
       b.AppendLine("PRINT N'Creating [dbo].[Element]'");
       b.AppendLine("GO");

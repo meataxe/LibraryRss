@@ -2,6 +2,6 @@
 {
   public interface IInitialisationService
   {
-    void EnsureDatabaseIsInitialised();
+    void EnsureDatabaseIsInitialised(bool forceInitialisation = false);
   }
 }

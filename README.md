@@ -16,3 +16,8 @@ https://ent.kotui.org.nz/client/rss/hitlist/pn/qu=newbks-pn&dt=list&st=PD
 
 The code is running on appharbor (maybe, if it's currently compiling ok) here:
 http://pnlibrarytitles.apphb.com
+
+Todo:
+  - Store last updated info and check before doing a full refresh
+  - Tidy up the results grid
+  - start with grid filtered to score > 0 and fiction only

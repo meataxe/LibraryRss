@@ -1,0 +1,40 @@
+﻿@{
+  ViewBag.Title = "New Titles Admin";
+}
+
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th colspan="2">
+        <h3>
+          @ViewBag.Title
+        </h3>             
+      </th>
+    </tr>  
+    <tr>
+      <td style="width: 150px">Action</td>
+      <td>Description</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><button type="button" class="btn btn-info btn-xs" id="init">Initialise</button></td>      
+      <td>Re-initialises the database</td>
+    </tr>    
+  </tbody>
+</table>
+
+<div id="list-wrapper" style="margin-top: -22px; font-size: 11px;">
+  <div id="title-table"></div>
+</div> 
+
+@section scripts
+{
+  <script>
+    $(document).ready(function() {      
+      $("#init").on("click", function () {
+        $.ajax({ url: '/Admin/InitialiseDatabase' });
+      });      
+    });
+  </script>
+}

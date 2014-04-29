@@ -1,5 +1,6 @@
 ﻿namespace MB.LibraryRss.WebUi.Infrastructure.Orm
 {
+  using System;
   using System.Collections.Generic;
   using System.Data;
   using System.Data.SqlClient;
@@ -22,7 +23,7 @@
       this.initialisationService = initialisationService;      
     }
 
-    public void Save(List<TitleResult> results)
+    public void Save(List<TitleResult> results, DateTime lastUpdated)
     {
       this.initialisationService.EnsureDatabaseIsInitialised();
 
@@ -50,6 +51,27 @@
       }
 
       return results;
+    }
+
+    public DateTime GetLastUpdated()
+    {
+      this.initialisationService.EnsureDatabaseIsInitialised();
+
+      using (var connection = this.connectionService.GetConnection())
+      {
+        connection.Open();
+
+        using (var cmd = new SqlCommand("SELECT TOP 1 LastUpdated FROM Control", connection) { CommandType = CommandType.Text })
+        {
+          cmd.ExecuteScalar();
+
+          using (var rdr = cmd.ExecuteReader())
+          {
+            rdr.Read();
+            return DateTime.Parse(rdr[0].ToString());
+          }
+        }
+      }
     }
 
     private static void InsertElement(SqlConnection connection, string titleData)

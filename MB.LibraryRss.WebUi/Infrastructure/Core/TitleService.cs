@@ -11,34 +11,45 @@
 
   using QDFeedParser;
 
-  public class TitleSearchService : ITitleSearchService
+  public class TitleService : ITitleService
   {
     private readonly IDownloadService downloadService;
     private readonly ICustomFeedFactory feedFactory;
-    private readonly ITitleAnalysisService statusService;
+    private readonly ITitleAnalysisService analysisService;
+    private readonly IPersistanceService persistanceService;
 
-    public TitleSearchService(IDownloadService downloadService, ICustomFeedFactory feedFactory, ITitleAnalysisService statusService)
+    public TitleService(IDownloadService downloadService, ICustomFeedFactory feedFactory, ITitleAnalysisService analysisService, IPersistanceService persistanceService, IFeedSourceFactory feedSourceFactory)
     {
       this.downloadService = downloadService;
       this.feedFactory = feedFactory;
-      this.statusService = statusService;
+      this.analysisService = analysisService;
+      this.persistanceService = persistanceService;
+
+      this.FeedSource = feedSourceFactory.GetFeedSource();      
     }
 
-    public List<TitleResult> GetTitlesFromUrl(string url)
+    public FeedSource FeedSource { get; set; }    
+
+    public List<TitleResult> GetTitles()
     {
-      var feedXml = this.downloadService.Download(url);
-      var feed = this.feedFactory.CreateFeed(feedXml);
-
-      return this.GetTitles(feed);
+      return this.persistanceService.GetLatest();
     }
 
-    public List<TitleResult> GetTitlesFromFile(string path)
+    public void RefreshTitles()
     {
-      var feedXml = File.ReadAllLines(path).Aggregate(string.Empty, (current, next) => current + "\r\n" + next).Trim();
-      var feed = this.feedFactory.CreateFeed(feedXml);
+      var feedXml = this.FeedSource.SourceType == SearchSource.File
+        ? File.ReadAllLines(this.FeedSource.Source).Aggregate(string.Empty, (current, next) => current + "\r\n" + next).Trim()
+        : this.downloadService.Download(this.FeedSource.Source);
+            
+      var feed = this.feedFactory.CreateFeed(feedXml);      
 
-      return this.GetTitles(feed);
-    }
+      // check updated tag against db, if newer then continue, else halt
+      if (this.persistanceService.GetLastUpdated() < feed.LastUpdated)
+      {
+        var titles = this.GetTitles(feed);
+        this.persistanceService.Save(titles, feed.LastUpdated);
+      }
+    }    
 
     private static TitleResult GetTitleResult(BaseFeedItem i)
     {
@@ -68,8 +79,8 @@
       title.Author = !string.IsNullOrEmpty(title.Author) ? title.Author : dom["div.INITIAL_AUTHOR_SRCH"].Text().Trim();
       title.Isbn = dom["div.ISBN"].Text().Trim();
       title.ShelfLocation = GetShelfLocations(dom["table.detailItemTable tr.detailItemsTableRow td:nth-child(2)"].Text());
-      title.IsNonFiction = this.statusService.GetNonFictionStatus(title.ShelfLocation) ? "Yes" : "No";
-      title.ShelfLocationScore = this.statusService.GetStatus(title.ShelfLocation);
+      title.IsNonFiction = this.analysisService.GetNonFictionStatus(title.ShelfLocation) ? "Yes" : "No";
+      title.ShelfLocationScore = this.analysisService.GetStatus(title.ShelfLocation);
       title.SubjectTerms = dom["div.SUBJECT_TERM a"].Select(a => a.GetAttribute("title").Trim()).ToList();
 
       // A call to this url may not work outside of the pncc domain:

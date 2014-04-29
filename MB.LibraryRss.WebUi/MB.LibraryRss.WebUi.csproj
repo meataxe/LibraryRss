@@ -156,8 +156,9 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\BaseController.cs" />
-    <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Domain\FeedSource.cs" />
     <Compile Include="Domain\TitleResult.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -165,13 +166,15 @@
     <Compile Include="Infrastructure\Autofac\CoreModule.cs" />
     <Compile Include="Infrastructure\Autofac\WebUiModule.cs" />
     <Compile Include="Infrastructure\Core\ConnectionService.cs" />
+    <Compile Include="Infrastructure\Core\FeedSourceFactory.cs" />
     <Compile Include="Infrastructure\Core\ProxiedDownloadService.cs" />
     <Compile Include="Infrastructure\Core\StreamFeedFactory.cs" />
     <Compile Include="Infrastructure\Core\TitleAnalysisService.cs" />
-    <Compile Include="Infrastructure\Core\TitleSearchService.cs" />
+    <Compile Include="Infrastructure\Core\TitleService.cs" />
     <Compile Include="Infrastructure\Helpers\HtmlHelpers.cs" />
     <None Include="Infrastructure\Orm\Init_sql.txt" />
     <Compile Include="Infrastructure\Orm\InitialisationService.cs" />
+    <Compile Include="Interfaces\IFeedSourceFactory.cs" />
     <Compile Include="Interfaces\IInitialisationService.cs" />
     <Compile Include="Infrastructure\Orm\PersistanceService.cs" />
     <Compile Include="Interfaces\IConnectionService.cs" />
@@ -179,9 +182,9 @@
     <Compile Include="Interfaces\ICustomFeedFactory.cs" />
     <Compile Include="Interfaces\IDownloadService.cs" />
     <Compile Include="Interfaces\ITitleAnalysisService.cs" />
-    <Compile Include="Interfaces\ITitleSearchService.cs" />
+    <Compile Include="Interfaces\ITitleService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Content Include="Views\Home\Test.cshtml" />
+    <Content Include="Views\Admin\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\css\bootstrap-theme.css" />
