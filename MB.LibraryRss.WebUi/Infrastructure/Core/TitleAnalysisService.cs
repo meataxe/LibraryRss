@@ -9,6 +9,7 @@
   {
     private static readonly Dictionary<string, int> Blacklist = new Dictionary<string, int>
       {
+        { "Anime", -1 },
         { "Large Print", -1 },
         { "Linton Library", -1 },
         { "Children's Zone", -1 },
