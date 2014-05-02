@@ -9,9 +9,8 @@
 
   using global::Autofac.Integration.WebApi;
 
-  using MB.LibraryRss.WebUi.Domain;
-  using MB.LibraryRss.WebUi.Infrastructure.Core;
-  using MB.LibraryRss.WebUi.Interfaces;
+  using MB.LibraryRss.WebUi.Infrastructure.Orm;
+  using MB.LibraryRss.WebUi.Infrastructure.Orm.Repos;
 
   public class WebUiModule : Module
   {
@@ -34,6 +33,9 @@
       builder.RegisterAssemblyTypes(assembly)
              .Where(t => t.Name.EndsWith("Factory"))
              .AsImplementedInterfaces();
+
+      builder.RegisterType<RssEntities>().AsSelf();
+      builder.RegisterType<UnitOfWork>().AsSelf();
     }
   }
 }

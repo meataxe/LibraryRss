@@ -4,20 +4,17 @@
   using System.Collections.Generic;
   using System.Data;
   using System.Data.SqlClient;
-  using System.Diagnostics.CodeAnalysis;
-  using System.Text;
 
-  using MB.LibraryRss.WebUi.Interfaces;  
+  using MB.LibraryRss.WebUi.Infrastructure.Orm.Interfaces;
+  using MB.LibraryRss.WebUi.Interfaces;
 
   public class InitialisationService : IInitialisationService
   {
-    private readonly IConnectionService connectionService;
-
-    private bool isInitialised;
+    private readonly string nameOrConnectionString;
 
     public InitialisationService(IConnectionService connectionService)
     {
-      this.connectionService = connectionService;
+      this.nameOrConnectionString = connectionService.NameOrConnectionString();
     }
 
     /*
@@ -26,39 +23,38 @@
      */
     public void EnsureDatabaseIsInitialised(bool forceInitialisation = false)
     {
-      if (!forceInitialisation && this.isInitialised)
-      {        
-        return;
-      }
-
-      using (var connection = this.connectionService.GetConnection())
+      using (var connection = this.GetConnection())
       {
-        connection.Open(); 
+        connection.Open();
+
+        if (!forceInitialisation && IsInitialised(connection))
+        {
+          return;
+        }
         
         // Allow resetting the db outside of normal operation, in case of schema changes
         if (forceInitialisation)
         {
-          this.ClearDatabase(connection);
+          ClearDatabase(connection);
         }
 
         // Best case: db is initialised and ready to use
-        this.RefreshInitialisationStatus(connection);
-        if (this.isInitialised)
+        if (IsInitialised(connection))
         {
           return;
         }
 
         // Next case: db is uninitialised and ready to initialise
-        this.InitialiseDatabase(connection);
-        if (this.isInitialised)
+        InitialiseDatabase(connection);
+        if (IsInitialised(connection))
         {
           return;
         }
 
         // Last case: db is partially initialised and needs to be cleared out first
-        this.ClearDatabase(connection);
-        this.InitialiseDatabase(connection);
-        if (this.isInitialised)
+        ClearDatabase(connection);
+        InitialiseDatabase(connection);
+        if (IsInitialised(connection))
         {
           return;
         }
@@ -68,245 +64,9 @@
       }
     }
 
-    [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1122:UseStringEmptyForEmptyStrings",
-      Justification = "Reviewed. Suppression is OK here.")]
-    private static string GetClearSql()
+    private static bool IsInitialised(SqlConnection connection)
     {
-      var b = new StringBuilder();
-      b.AppendLine("IF OBJECT_ID('Control') IS NOT NULL");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    DROP TABLE [Control]");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("");
-      b.AppendLine("IF OBJECT_ID('Element') IS NOT NULL");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    DROP TABLE [Element]");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("");
-      b.AppendLine("IF OBJECT_ID('DeleteElements') IS NOT NULL");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    DROP PROCEDURE [DeleteElements]");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("");
-      b.AppendLine("IF OBJECT_ID('InsertElement') IS NOT NULL");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    DROP PROCEDURE [InsertElement]");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("");
-      b.AppendLine("IF OBJECT_ID('ReadElements') IS NOT NULL");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    DROP PROCEDURE [ReadElements]");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-
-      return b.ToString();
-    }
-
-    [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1122:UseStringEmptyForEmptyStrings", Justification = "Reviewed. Suppression is OK here.")]
-    private static string GetInitSql()
-    {
-      var b = new StringBuilder();
-      b.AppendLine("SET NUMERIC_ROUNDABORT OFF");
-      b.AppendLine("GO");
-      b.AppendLine("SET ANSI_PADDING, ANSI_WARNINGS, CONCAT_NULL_YIELDS_NULL, ARITHABORT, QUOTED_IDENTIFIER, ANSI_NULLS ON");
-      b.AppendLine("GO");
-      b.AppendLine("IF EXISTS ( SELECT");
-      b.AppendLine("              *");
-      b.AppendLine("            FROM");
-      b.AppendLine("              tempdb..sysobjects");
-      b.AppendLine("            WHERE");
-      b.AppendLine("              id = OBJECT_ID('tempdb..#tmpErrors') )");
-      b.AppendLine("  DROP TABLE #tmpErrors");
-      b.AppendLine("GO");
-      b.AppendLine("CREATE TABLE #tmpErrors ( Error INT )");
-      b.AppendLine("GO");
-      b.AppendLine("SET XACT_ABORT ON");
-      b.AppendLine("GO");
-      b.AppendLine("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE");
-      b.AppendLine("GO");
-      b.AppendLine("BEGIN TRANSACTION");
-      b.AppendLine("GO");
-      b.AppendLine("PRINT N'Creating [dbo].[Control]'");
-      b.AppendLine("GO");
-      b.AppendLine("CREATE TABLE [Control]");
-      b.AppendLine("  (");
-      b.AppendLine("    [LastUpdated] [datetime] NULL");
-      b.AppendLine("  )");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@ERROR <> 0");
-      b.AppendLine("  AND @@TRANCOUNT > 0");
-      b.AppendLine("  ROLLBACK TRANSACTION");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@TRANCOUNT = 0");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    INSERT  INTO #tmpErrors");
-      b.AppendLine("            ( Error )");
-      b.AppendLine("            SELECT");
-      b.AppendLine("              1");
-      b.AppendLine("    BEGIN TRANSACTION");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("PRINT N'Creating [dbo].[Element]'");
-      b.AppendLine("GO");
-      b.AppendLine("CREATE TABLE [dbo].[Element]");
-      b.AppendLine("  (");
-      b.AppendLine("    [Id] [int] NOT NULL");
-      b.AppendLine("               IDENTITY(1, 1),");
-      b.AppendLine("    [Data] [text] COLLATE Latin1_General_CI_AS");
-      b.AppendLine("                  NOT NULL,");
-      b.AppendLine("    [Inserted] [datetime] NOT NULL");
-      b.AppendLine("                          CONSTRAINT [DF_ChildElement_Inserted] DEFAULT ( GETDATE() )");
-      b.AppendLine("  )");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@ERROR <> 0");
-      b.AppendLine("  AND @@TRANCOUNT > 0");
-      b.AppendLine("  ROLLBACK TRANSACTION");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@TRANCOUNT = 0");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    INSERT  INTO #tmpErrors");
-      b.AppendLine("            ( Error )");
-      b.AppendLine("            SELECT");
-      b.AppendLine("              1");
-      b.AppendLine("    BEGIN TRANSACTION");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("PRINT N'Creating primary key [PK_ChildElement] on [dbo].[Element]'");
-      b.AppendLine("GO");
-      b.AppendLine("ALTER TABLE [dbo].[Element] ADD CONSTRAINT [PK_ChildElement] PRIMARY KEY CLUSTERED  ([Id])");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@ERROR <> 0");
-      b.AppendLine("  AND @@TRANCOUNT > 0");
-      b.AppendLine("  ROLLBACK TRANSACTION");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@TRANCOUNT = 0");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    INSERT  INTO #tmpErrors");
-      b.AppendLine("            ( Error )");
-      b.AppendLine("            SELECT");
-      b.AppendLine("              1");
-      b.AppendLine("    BEGIN TRANSACTION");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("PRINT N'Creating [dbo].[InsertElement]'");
-      b.AppendLine("GO");
-      b.AppendLine("CREATE PROCEDURE [dbo].[InsertElement] ( @Data TEXT )");
-      b.AppendLine("AS");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    SET NOCOUNT ON;");
-      b.AppendLine("");
-      b.AppendLine("    INSERT  INTO [Element]");
-      b.AppendLine("            ( [Data] )");
-      b.AppendLine("    VALUES");
-      b.AppendLine("            ( @Data )");
-      b.AppendLine("");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@ERROR <> 0");
-      b.AppendLine("  AND @@TRANCOUNT > 0");
-      b.AppendLine("  ROLLBACK TRANSACTION");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@TRANCOUNT = 0");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    INSERT  INTO #tmpErrors");
-      b.AppendLine("            ( Error )");
-      b.AppendLine("            SELECT");
-      b.AppendLine("              1");
-      b.AppendLine("    BEGIN TRANSACTION");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("PRINT N'Creating [dbo].[DeleteElements]'");
-      b.AppendLine("GO");
-      b.AppendLine("CREATE PROCEDURE [dbo].[DeleteElements]");
-      b.AppendLine("AS");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    SET NOCOUNT ON;");
-      b.AppendLine("");
-      b.AppendLine("    DELETE FROM");
-      b.AppendLine("      [Element]");
-      b.AppendLine("");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@ERROR <> 0");
-      b.AppendLine("  AND @@TRANCOUNT > 0");
-      b.AppendLine("  ROLLBACK TRANSACTION");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@TRANCOUNT = 0");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    INSERT  INTO #tmpErrors");
-      b.AppendLine("            ( Error )");
-      b.AppendLine("            SELECT");
-      b.AppendLine("              1");
-      b.AppendLine("    BEGIN TRANSACTION");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("PRINT N'Creating [dbo].[ReadElements]'");
-      b.AppendLine("GO");
-      b.AppendLine("CREATE PROCEDURE [dbo].[ReadElements]");
-      b.AppendLine("AS");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    SET NOCOUNT ON;");
-      b.AppendLine("");
-      b.AppendLine("    SELECT");
-      b.AppendLine("      Data,");
-      b.AppendLine("      Inserted");
-      b.AppendLine("    FROM");
-      b.AppendLine("      [Element]");
-      b.AppendLine("");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@ERROR <> 0");
-      b.AppendLine("  AND @@TRANCOUNT > 0");
-      b.AppendLine("  ROLLBACK TRANSACTION");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@TRANCOUNT = 0");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    INSERT  INTO #tmpErrors");
-      b.AppendLine("            ( Error )");
-      b.AppendLine("            SELECT");
-      b.AppendLine("              1");
-      b.AppendLine("    BEGIN TRANSACTION");
-      b.AppendLine("  END");
-      b.AppendLine("GO");
-      b.AppendLine("PRINT N'Altering permissions on [dbo].[InsertElement]'");
-      b.AppendLine("GO");
-      b.AppendLine("GRANT EXECUTE ON  [dbo].[InsertElement] TO [public]");
-      b.AppendLine("GO");
-      b.AppendLine("PRINT N'Altering permissions on [dbo].[ReadElements]'");
-      b.AppendLine("GO");
-      b.AppendLine("GRANT EXECUTE ON  [dbo].[ReadElements] TO [public]");
-      b.AppendLine("GO");
-      b.AppendLine("PRINT N'Altering permissions on [dbo].[DeleteElements]'");
-      b.AppendLine("GO");
-      b.AppendLine("GRANT EXECUTE ON  [dbo].[DeleteElements] TO [public]");
-      b.AppendLine("GO");
-      b.AppendLine("IF EXISTS ( SELECT");
-      b.AppendLine("              *");
-      b.AppendLine("            FROM");
-      b.AppendLine("              #tmpErrors )");
-      b.AppendLine("  ROLLBACK TRANSACTION");
-      b.AppendLine("GO");
-      b.AppendLine("IF @@TRANCOUNT > 0");
-      b.AppendLine("  BEGIN");
-      b.AppendLine("    PRINT 'The database update succeeded'");
-      b.AppendLine("    COMMIT TRANSACTION");
-      b.AppendLine("  END");
-      b.AppendLine("ELSE");
-      b.AppendLine("  PRINT 'The database update failed'");
-      b.AppendLine("GO");
-      b.AppendLine("DROP TABLE #tmpErrors");
-      b.AppendLine("GO");
-
-      return b.ToString();
-    }
-
-    private static bool IsDatabaseInitialised(SqlConnection connection)
-    {
-      using (var cmd = new SqlCommand("SELECT COUNT(*) AS TableExists FROM sys.tables WHERE name = 'Element'", connection) { CommandType = CommandType.Text })
+      using (var cmd = new SqlCommand("SELECT COUNT(*) AS TableExists FROM sys.tables WHERE name = 'Feeds'", connection) { CommandType = CommandType.Text })
       {
         cmd.ExecuteScalar();
 
@@ -331,42 +91,41 @@
       return sql.Split(new[] { "GO" }, StringSplitOptions.RemoveEmptyEntries);
     }
 
-    private void RefreshInitialisationStatus(SqlConnection connection)
+    private static void InitialiseDatabase(SqlConnection connection)
     {
-      this.isInitialised = IsDatabaseInitialised(connection);
-    }
+      var sql = Properties.Resources.ResourceManager.GetString("InitSql");
 
-    private void InitialiseDatabase(SqlConnection connection)
-    {
-      // ExecuteTransactionScopedNonQuery(connection, this.initSql);
       using (var transaction = connection.BeginTransaction())
       {
-        foreach (var statement in SplitStatements(GetInitSql()))
-        {
-          ExecuteNonQuery(connection, transaction, statement);
-        }        
-
-        transaction.Commit();
-      }
-
-      this.RefreshInitialisationStatus(connection);
-    }
-
-    private void ClearDatabase(SqlConnection connection)
-    {
-      // ExecuteTransactionScopedNonQuery(connection, this.clearSql);
-      using (var transaction = connection.BeginTransaction())
-      {
-        foreach (var statement in SplitStatements(GetClearSql()))
+        foreach (var statement in SplitStatements(sql))
         {
           ExecuteNonQuery(connection, transaction, statement);
         }
 
         transaction.Commit();
-      }      
-      
-      // Might not actually be cleared, but the app should treat it as such.
-      this.isInitialised = false;
-    }    
-  }
+      }
+    }
+
+    private static void ClearDatabase(SqlConnection connection)
+    {
+      var sql = Properties.Resources.ResourceManager.GetString("DropSql");
+
+      using (var transaction = connection.BeginTransaction())
+      {
+        foreach (var statement in SplitStatements(sql))
+        {
+          ExecuteNonQuery(connection, transaction, statement);
+        }
+
+        transaction.Commit();
+      }
+
+      // Might not actually be cleared, but the app should treat it as such.      
+    }
+
+    private SqlConnection GetConnection()
+    {
+      return new SqlConnection(this.nameOrConnectionString);
+    }   
+  }  
 }

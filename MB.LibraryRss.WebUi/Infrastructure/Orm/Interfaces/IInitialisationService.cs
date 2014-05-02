@@ -1,4 +1,4 @@
-﻿namespace MB.LibraryRss.WebUi.Interfaces
+﻿namespace MB.LibraryRss.WebUi.Infrastructure.Orm.Interfaces
 {
   public interface IInitialisationService
   {

@@ -18,7 +18,6 @@
       return this.View(this.titleService.GetTitles());
     }
 
-    [HttpGet, HttpPost]
     public JsonResult RefreshTitles()
     {
       // get async thing working.      
@@ -26,7 +25,6 @@
       return this.GetTitles();
     }
 
-    [HttpGet, HttpPost]
     public JsonResult GetTitles()
     {
       return new JsonResult { Data = this.titleService.GetTitles(), JsonRequestBehavior = JsonRequestBehavior.AllowGet };

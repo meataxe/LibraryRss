@@ -2,110 +2,79 @@
 {
   using System;
   using System.Collections.Generic;
-  using System.Data;
-  using System.Data.SqlClient;
+  using System.Collections.ObjectModel;
   using System.Linq;
 
+  using AutoMapper;
+
   using MB.LibraryRss.WebUi.Domain;
+  using MB.LibraryRss.WebUi.Infrastructure.Orm.Models;
+  using MB.LibraryRss.WebUi.Infrastructure.Orm.Repos;
   using MB.LibraryRss.WebUi.Interfaces;
 
   using Newtonsoft.Json;
 
   public class PersistanceService : IPersistanceService
   {
-    private readonly IConnectionService connectionService;
+    private readonly UnitOfWork uow;
 
-    private readonly IInitialisationService initialisationService;
+    private readonly IMappingEngine mapper;
 
-    public PersistanceService(IConnectionService connectionService, IInitialisationService initialisationService)
+    public PersistanceService(UnitOfWork uow, IMappingEngine mapper)
     {
-      this.connectionService = connectionService;
-      this.initialisationService = initialisationService;      
+      this.uow = uow;
+      this.mapper = mapper;
     }
 
+    private ElementRepository Elements 
+    { 
+      get
+      {
+        return this.uow.ElementRepository;
+      } 
+    }
+
+    private FeedRepository Feeds
+    {
+      get
+      {
+        return this.uow.FeedRepository;
+      }
+    }
+
+    // todo: get this saving
     public void Save(List<TitleResult> results, DateTime lastUpdated)
     {
-      this.initialisationService.EnsureDatabaseIsInitialised();
-
-      using (var connection = this.connectionService.GetConnection())
+      // Clearing old data if we get a new feed. This means there will only be 0 or 1 record in the feeds table.
+      // If we want to change that, we'll need to think about rolling old feeds out because the db has only ~20mb 
+      // storage available.
+      foreach (var feed in this.Feeds.FetchAll())
       {
-        connection.Open();
-        DeleteElements(connection);
-
-        foreach (var result in results)
-        {
-          InsertElement(connection, JsonConvert.SerializeObject(result));
-        }
+        this.Feeds.Delete(feed);
       }
+
+      var latestFeed = new Feed
+        {
+          Elements = results.Select(result => new Element { Data = JsonConvert.SerializeObject(result) }).ToList(),
+          FeedLastUpdated = lastUpdated, 
+          Inserted = DateTime.Now
+        };
+
+      this.Feeds.Insert(latestFeed);
+
+      this.uow.Save();
     }
 
     public List<TitleResult> GetLatest()
     {
-      this.initialisationService.EnsureDatabaseIsInitialised();
+      var feed = this.Feeds.GetLatestFeed();
 
-      var results = new List<TitleResult>();      
-      using (var connection = this.connectionService.GetConnection())
-      {
-        connection.Open();
-        results.AddRange(ReadElements(connection).Select(JsonConvert.DeserializeObject<TitleResult>));
-      }
-
-      return results;
+      return feed == null ? new List<TitleResult>() : feed.Elements.Select(this.mapper.Map<TitleResult>).ToList();
     }
 
-    public DateTime GetLastUpdated()
+    public DateTime? GetLastUpdated()
     {
-      this.initialisationService.EnsureDatabaseIsInitialised();
-
-      using (var connection = this.connectionService.GetConnection())
-      {
-        connection.Open();
-
-        using (var cmd = new SqlCommand("SELECT TOP 1 LastUpdated FROM Control", connection) { CommandType = CommandType.Text })
-        {
-          cmd.ExecuteScalar();
-
-          using (var rdr = cmd.ExecuteReader())
-          {
-            rdr.Read();
-            return DateTime.Parse(rdr[0].ToString());
-          }
-        }
-      }
-    }
-
-    private static void InsertElement(SqlConnection connection, string titleData)
-    {
-      using (var cmd = new SqlCommand("InsertElement", connection) { CommandType = CommandType.StoredProcedure })
-      {
-        cmd.Parameters.Add(new SqlParameter("@Data", titleData));
-        cmd.ExecuteNonQuery();
-      }
-    }
-
-    private static void DeleteElements(SqlConnection connection)
-    {
-      using (var cmd = new SqlCommand("DeleteElements", connection) { CommandType = CommandType.StoredProcedure })
-      {
-        cmd.ExecuteNonQuery();
-      }
-    }
-
-    private static IEnumerable<string> ReadElements(SqlConnection connection)
-    {
-      var results = new List<string>();
-      using (var cmd = new SqlCommand("ReadElements", connection) { CommandType = CommandType.StoredProcedure })
-      {
-        using (var rdr = cmd.ExecuteReader())
-        {
-          while (rdr.Read())
-          {
-            results.Add(rdr["Data"].ToString());
-          }
-        }
-      }
-
-      return results;
+      return this.Feeds.GetMaxFeedLastUpdated();
     }
   }
 }

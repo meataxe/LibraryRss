@@ -14,7 +14,8 @@
       AreaRegistration.RegisterAllAreas();
 
       AutofacConfig.Register(GlobalConfiguration.Configuration);
-      
+      EfConfig.Register(); 
+
       WebApiConfig.Register(GlobalConfiguration.Configuration);
       FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
       RouteConfig.RegisterRoutes(RouteTable.Routes);

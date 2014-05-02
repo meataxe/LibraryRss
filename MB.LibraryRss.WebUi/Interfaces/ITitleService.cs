@@ -3,7 +3,6 @@
   using System.Collections.Generic;
 
   using MB.LibraryRss.WebUi.Domain;
-  using MB.LibraryRss.WebUi.Infrastructure.Core;
 
   public interface ITitleService
   {
@@ -11,6 +10,6 @@
 
     List<TitleResult> GetTitles();
 
-    void RefreshTitles();
+    List<TitleResult> RefreshTitles();
   }
 }

@@ -8,24 +8,14 @@
   {
     private readonly ITitleService titleService;
 
-    private readonly IInitialisationService initialisationService;
-
-    public AdminController(ITitleService titleService, IInitialisationService initialisationService)
+    public AdminController(ITitleService titleService)
     {
       this.titleService = titleService;
-      this.initialisationService = initialisationService;
     }
 
     public ActionResult Index()
     {
       return this.View();
-    }
-
-    public ActionResult InitialiseDatabase()
-    {
-      this.initialisationService.EnsureDatabaseIsInitialised(true);
-
-      return this.Index();
     }
   }
 }

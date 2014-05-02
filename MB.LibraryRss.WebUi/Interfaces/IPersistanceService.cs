@@ -11,6 +11,6 @@
 
     List<TitleResult> GetLatest();
 
-    DateTime GetLastUpdated();
+    DateTime? GetLastUpdated();
   }
 }

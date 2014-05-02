@@ -54,6 +54,12 @@
     <Reference Include="Autofac.Integration.WebApi">
       <HintPath>..\packages\Autofac.WebApi.3.1.0\lib\net40\Autofac.Integration.WebApi.dll</HintPath>
     </Reference>
+    <Reference Include="AutoMapper">
+      <HintPath>..\packages\AutoMapper.3.2.1\lib\net40\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper.Net4">
+      <HintPath>..\packages\AutoMapper.3.2.1\lib\net40\AutoMapper.Net4.dll</HintPath>
+    </Reference>
     <Reference Include="CsQuery, Version=1.3.3.249, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\CsQuery.1.3.4\lib\net40\CsQuery.dll</HintPath>
@@ -73,6 +79,7 @@
     <Reference Include="System" />
     <Reference Include="System.Activities" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web.DynamicData" />
@@ -152,6 +159,8 @@
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\AutofacConfig.cs" />
+    <Compile Include="Infrastructure\Orm\Interfaces\IInitialisationService.cs" />
+    <Compile Include="Infrastructure\Orm\InitialisationService.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
@@ -163,21 +172,38 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Infrastructure\Autofac\AutomapperModule.cs" />
     <Compile Include="Infrastructure\Autofac\CoreModule.cs" />
     <Compile Include="Infrastructure\Autofac\WebUiModule.cs" />
-    <Compile Include="Infrastructure\Core\ConnectionService.cs" />
+    <Compile Include="Infrastructure\Helpers\AutomapperHelpers.cs" />
+    <Compile Include="Infrastructure\Orm\ConnectionService.cs" />
     <Compile Include="Infrastructure\Core\FeedSourceFactory.cs" />
     <Compile Include="Infrastructure\Core\ProxiedDownloadService.cs" />
     <Compile Include="Infrastructure\Core\StreamFeedFactory.cs" />
     <Compile Include="Infrastructure\Core\TitleAnalysisService.cs" />
     <Compile Include="Infrastructure\Core\TitleService.cs" />
     <Compile Include="Infrastructure\Helpers\HtmlHelpers.cs" />
-    <None Include="Infrastructure\Orm\Init_sql.txt" />
-    <Compile Include="Infrastructure\Orm\InitialisationService.cs" />
-    <Compile Include="Interfaces\IFeedSourceFactory.cs" />
-    <Compile Include="Interfaces\IInitialisationService.cs" />
+    <Compile Include="App_Start\EfConfig.cs" />
+    <Compile Include="Infrastructure\Orm\RssEntitiesFactory.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Infrastructure\Orm\PersistanceService.cs" />
-    <Compile Include="Interfaces\IConnectionService.cs" />
+    <Compile Include="Infrastructure\Orm\RssProfile.cs" />
+    <Compile Include="Infrastructure\Orm\RssEntities.cs" />
+    <Compile Include="Infrastructure\Orm\Models\Feed.cs" />
+    <Compile Include="Infrastructure\Orm\Models\Element.cs" />
+    <Compile Include="Infrastructure\Orm\Repos\FeedRepository.cs" />
+    <Compile Include="Infrastructure\Orm\Repos\ElementRepository.cs" />
+    <Compile Include="Infrastructure\Orm\UnitOfWork.cs" />
+    <Compile Include="Infrastructure\Orm\Repos\EditableRepositoryBase.cs" />
+    <Compile Include="Infrastructure\Orm\Interfaces\IEditableRepository.cs" />
+    <Compile Include="Infrastructure\Orm\Repos\ReadOnlyRepositoryBase.cs" />
+    <Compile Include="Infrastructure\Orm\Interfaces\IRepository.cs" />
+    <Compile Include="Interfaces\IFeedSourceFactory.cs" />
+    <Compile Include="Infrastructure\Orm\Interfaces\IConnectionService.cs" />
     <Compile Include="Interfaces\IPersistanceService.cs" />
     <Compile Include="Interfaces\ICustomFeedFactory.cs" />
     <Compile Include="Interfaces\IDownloadService.cs" />
@@ -185,6 +211,10 @@
     <Compile Include="Interfaces\ITitleService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Views\Admin\Index.cshtml" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\css\bootstrap-theme.css" />
@@ -255,6 +285,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="..\packages\AutoMapper.3.2.1\tools\AutoMapper.targets" Condition="Exists('..\packages\AutoMapper.3.2.1\tools\AutoMapper.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

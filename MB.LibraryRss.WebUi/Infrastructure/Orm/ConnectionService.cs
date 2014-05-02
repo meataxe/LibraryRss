@@ -1,4 +1,4 @@
-﻿namespace MB.LibraryRss.WebUi.Infrastructure.Core
+﻿namespace MB.LibraryRss.WebUi.Infrastructure.Orm
 {
   using System.Data.SqlClient;
   using System.Web.Configuration;
@@ -15,6 +15,6 @@
     public SqlConnection GetConnection()
     {
       return new SqlConnection(this.NameOrConnectionString());
-    } 
+    }
   }
 }

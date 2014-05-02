@@ -35,7 +35,7 @@
       return this.persistanceService.GetLatest();
     }
 
-    public void RefreshTitles()
+    public List<TitleResult> RefreshTitles()
     {
       var feedXml = this.FeedSource.SourceType == SearchSource.File
         ? File.ReadAllLines(this.FeedSource.Source).Aggregate(string.Empty, (current, next) => current + "\r\n" + next).Trim()
@@ -44,11 +44,15 @@
       var feed = this.feedFactory.CreateFeed(feedXml);      
 
       // check updated tag against db, if newer then continue, else halt
-      if (this.persistanceService.GetLastUpdated() < feed.LastUpdated)
+      var lastUpdated = this.persistanceService.GetLastUpdated();
+      if (lastUpdated == null || lastUpdated < feed.LastUpdated)
       {
-        var titles = this.GetTitles(feed);
+        var titles = this.GetTitlesFromFeed(feed);
         this.persistanceService.Save(titles, feed.LastUpdated);
+        return titles;
       }
+
+      return this.GetTitles();
     }    
 
     private static TitleResult GetTitleResult(BaseFeedItem i)
@@ -90,8 +94,8 @@
       return title;
     }
 
-    private List<TitleResult> GetTitles(IFeed feed)
-    {
+    private List<TitleResult> GetTitlesFromFeed(IFeed feed)
+    {      
       var results = feed.Items.OrderBy(i => i.Title).Select(GetTitleResult).ToList();
       var pages = this.downloadService.Download(results.Select(r => r.Url));      
 
