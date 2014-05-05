@@ -6,12 +6,22 @@
   using System.IO;
   using System.Linq;
   using System.Net;
+  using System.Threading;
   using System.Threading.Tasks;
 
   using MB.LibraryRss.WebUi.Interfaces;
 
   public class ProxiedDownloadService : IDownloadService
   {
+    // For ~300 requests, 10 gives 90s response and 200 gives <15s response.
+    private const int MaxConcurrentConnections = 200; 
+
+    public ProxiedDownloadService()
+    {
+      ThreadPool.SetMinThreads(100, 4);
+      System.Net.ServicePointManager.DefaultConnectionLimit = MaxConcurrentConnections;
+    }
+
     public string Download(string url)
     {
       var request = (HttpWebRequest)WebRequest.Create(new Uri(url));
@@ -30,12 +40,9 @@
       var results = new ConcurrentDictionary<string, string>();
       var distinctUrls = urls.Distinct();
 
-      // Because we're hitting the same domain for all urls, we need to make 
-      // sure we're being nice and only hitting it a few times, otherwise it
-      // might think we're spamming and rate-limit our requests.
       Parallel.ForEach(
-        distinctUrls, 
-        new ParallelOptions { MaxDegreeOfParallelism = 10 },
+        distinctUrls,
+        new ParallelOptions { MaxDegreeOfParallelism = MaxConcurrentConnections },
         url => results.TryAdd(url, this.Download(url)));
 
       return results.ToDictionary(pair => pair.Key, pair => pair.Value);
