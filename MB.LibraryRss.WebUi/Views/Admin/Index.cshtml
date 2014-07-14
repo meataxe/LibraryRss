@@ -8,6 +8,8 @@
       <th colspan="2">
         <h3>
           @ViewBag.Title
+          
+          <small> | @Html.ActionLink("Home", "Index", "Home")</small>
         </h3>             
       </th>
     </tr>  
@@ -18,7 +20,9 @@
   </thead>
   <tbody>
     <tr>
-      <td><button type="button" class="btn btn-info btn-xs" id="init">Initialise</button></td>      
+      <td>
+        @Html.ActionLink("Initialise", "InitialiseDatabase", "Admin", null, new { @class = "btn btn-info btn-xs" })        
+      </td>      
       <td>Re-initialises the database</td>
     </tr>    
   </tbody>
@@ -27,14 +31,3 @@
 <div id="list-wrapper" style="margin-top: -22px; font-size: 11px;">
   <div id="title-table"></div>
 </div> 
-
-@section scripts
-{
-  <script>
-    $(document).ready(function() {      
-      $("#init").on("click", function () {
-        $.ajax({ url: '/Admin/InitialiseDatabase' });
-      });      
-    });
-  </script>
-}
