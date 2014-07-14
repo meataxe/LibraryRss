@@ -8,11 +8,11 @@
   using MB.LibraryRss.WebUi.Infrastructure.Orm.Interfaces;
   using MB.LibraryRss.WebUi.Interfaces;
 
-  public class InitialisationService : IInitialisationService
+  public class SqlService : IDatastoreService
   {
     private readonly string nameOrConnectionString;
 
-    public InitialisationService(IConnectionService connectionService)
+    public SqlService(IConnectionService connectionService)
     {
       this.nameOrConnectionString = connectionService.NameOrConnectionString();
     }
@@ -64,6 +64,27 @@
       }
     }
 
+    public decimal FreeSpace()
+    {
+      const string Cmd =
+        "SELECT database_name = DB_NAME(database_id), log_size_mb = CAST(SUM(CASE WHEN type_desc = 'LOG' THEN size END) * 8. / 1024 AS DECIMAL(8,2)), row_size_mb = CAST(SUM(CASE WHEN type_desc = 'ROWS' THEN size END) * 8. / 1024 AS DECIMAL(8,2)), total_size_mb = CAST(SUM(size) * 8. / 1024 AS DECIMAL(8,2)) FROM sys.master_files WITH(NOWAIT) WHERE database_id = DB_ID() GROUP BY database_id";
+      
+      using (var connection = this.GetConnection())
+      {
+        connection.Open();
+        using (var cmd = new SqlCommand(Cmd, connection) { CommandType = CommandType.Text })
+        {
+          cmd.ExecuteScalar();
+
+          using (var rdr = cmd.ExecuteReader())
+          {
+            rdr.Read();
+            return decimal.Parse(rdr[3].ToString());
+          }
+        }
+      }
+    }
+  
     private static bool IsInitialised(SqlConnection connection)
     {
       using (var cmd = new SqlCommand("SELECT COUNT(*) AS TableExists FROM sys.tables WHERE name = 'Feeds'", connection) { CommandType = CommandType.Text })

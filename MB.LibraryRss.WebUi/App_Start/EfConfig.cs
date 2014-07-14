@@ -12,7 +12,7 @@
     {
       Database.SetInitializer<RssEntities>(null);
 
-      var initService = DependencyResolver.Current.GetService<IInitialisationService>();
+      var initService = DependencyResolver.Current.GetService<IDatastoreService>();
       initService.EnsureDatabaseIsInitialised();
     }
   }

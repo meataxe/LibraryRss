@@ -10,7 +10,11 @@
     <tr>
       <th colspan="4">
         <h3>
-          @ViewBag.Title <button type="button" class="btn btn-info btn-xs" id="refresh">Refresh</button>
+          @ViewBag.Title 
+          
+          <small> | @Html.ActionLink("About", "About")</small>
+          <button type="button" class="btn btn-info btn-xs" id="refresh">Refresh</button>
+
         </h3>             
       </th>
     </tr>  

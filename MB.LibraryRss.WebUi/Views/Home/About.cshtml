@@ -1,0 +1,31 @@
+﻿@{
+  ViewBag.Title = "About";
+
+  var freeSpace = this.ViewBag.FreeSpace as decimal?;
+  var freeSpaceDesc = freeSpace.HasValue ? string.Format("{0}mb", freeSpace) : "unknown";
+}
+
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th colspan="2">
+        <h3>
+          @ViewBag.Title
+          
+          <small> | @Html.ActionLink("Home", "Index")</small>
+        </h3>             
+      </th>
+    </tr>  
+    <tr>
+      <th style="width: 150px;">Property</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DB Free Space</td>
+      <td>@freeSpaceDesc</td>
+    </tr>    
+  </tbody>
+</table>
+
