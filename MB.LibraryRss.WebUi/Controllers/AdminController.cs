@@ -20,7 +20,7 @@
 
     public ActionResult InitialiseDatabase()
     {
-      this.datastoreService.EnsureDatabaseIsInitialised(true);
+      //this.datastoreService.EnsureDatabaseIsInitialised(true);
 
       return this.RedirectToAction("Index");
     }
