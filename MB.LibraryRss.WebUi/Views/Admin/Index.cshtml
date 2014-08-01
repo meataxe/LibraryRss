@@ -1,5 +1,8 @@
 ﻿@{
-  ViewBag.Title = "New Titles Admin";
+  ViewBag.Title = "Settings";
+
+  var freeSpace = this.ViewBag.FreeSpace as decimal?;
+  var freeSpaceDesc = freeSpace.HasValue ? string.Format("{0}mb", freeSpace) : "unknown";
 }
 
 <table class="table table-bordered table-striped">
@@ -7,9 +10,7 @@
     <tr>
       <th colspan="2">
         <h3>
-          @ViewBag.Title
-          
-          <small> | @Html.ActionLink("Home", "Index", "Home")</small>
+          Actions
         </h3>             
       </th>
     </tr>  
@@ -19,15 +20,38 @@
     </tr>
   </thead>
   <tbody>
+    <!--
     <tr>
-      <td>
-        @Html.ActionLink("Initialise", "InitialiseDatabase", "Admin", null, new { @class = "btn btn-info btn-xs" })        
-      </td>      
-      <td>Re-initialises the database</td>
-    </tr>    
+      <td>@Html.ActionLink("Initialise", "InitialiseDatabase", "Admin", null, new { @class = "btn btn-info btn-xs" })</td>      
+      <td>Re-initialise the database</td>
+    </tr>  
+    -->
+    <tr>
+      <td>@Html.ActionLink("Refresh", "RefreshTitles", "Admin", null, new { @class = "btn btn-info btn-xs" })</td>      
+      <td>Manually refresh the title data, takes ~1min</td>
+    </tr>       
   </tbody>
 </table>
 
-<div id="list-wrapper" style="margin-top: -22px; font-size: 11px;">
-  <div id="title-table"></div>
-</div> 
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th colspan="2">
+        <h3>
+          Settings
+        </h3>             
+      </th>
+    </tr>  
+    <tr>
+      <td style="width: 150px">Setting</td>
+      <td>Value</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DB Free Space</td>
+      <td>@freeSpaceDesc</td>
+    </tr>   
+  </tbody>
+</table>
+

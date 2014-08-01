@@ -1,40 +1,11 @@
-﻿/*
-body
-{
-  padding-top: 173px;
+﻿body
+{ 
+  padding-top: 136px;
   padding-bottom: 40px;
 }
-*/
 
 .navbar {
-  margin-bottom: 0;
-}
-
-.logo {
-  height: 100px;
-  background-color: #05A2B3;
-}
-
-.logo .app-title {
-  position: fixed;
-  top: 0;    
-  font-family: 'Trochut', cursive;
-  font-weight: bold;
-  font-size: 50px;
-  color: #eeeeff;
-  text-rendering: optimizelegibility;
-  -webkit-text-shadow:
-    3px 3px 0 #000,
-    -1px -1px 1px #000,
-    1px -1px 1px #000,
-    -1px 1px 1px #000,
-    1px 1px 1px #000;
-  text-shadow:
-    3px 3px 0 #000,
-    -1px -1px 1px #000,
-    1px -1px 1px #000,
-    -1px 1px 1px #000,
-    1px 1px 1px #000;
+  margin-bottom: 0;  
 }
 
 .navbar .menu form {
@@ -48,6 +19,12 @@ body
   font-size: 14px;
 }
 
+.navbar .menu ul.navbar-nav > li > a.test-system-link {
+  color: #666666;
+  font-size: 15px;
+  font-weight: bold;
+}
+
 .navbar .menu form.navbar-form {
   margin-top: 3px;
   margin-bottom: 0;
@@ -56,8 +33,7 @@ body
 
 .breadcrumb-container {
   background-color: #F5F5F5;
-  position: fixed;
-  top: 137px;
+  margin-top: 37px;
   width: 100%;
   z-index: 1000;
 }
@@ -77,181 +53,147 @@ body
 .content-container {
   margin-top: 20px;
 }
-
-.navbar .menu ul.navbar-nav > li > a.test-system-link {
-  color: #666666;
-  font-size: 15px;
-  font-weight: bold;
+  
+.grid-wrapper {
+  padding-top: 10px;
 }
 
-table.ozone > tbody {
-  background-color: #B4ECB1; /* #FFAD5B */
+.mb-template {
+  padding-top: 100px;
+  margin: -8px;
+  background-color: #FFFFFF;
+  color: #333333;
+  font-family: Helvetica,Arial,sans-serif;
+  font-size: 14px;
+  line-height: 1.42857;
 }
 
-table.ozone > tbody,
-table.ozone tbody .form-control,
-table.ozone tfoot tr.audit,
-table.ozone tfoot tr.audit .form-control {    
-  font-size: 11px;
+.mb-template *:before, 
+.mb-template *:after,
+.mb-template * {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
-table.ozone tbody .form-group,
-table.ozone tfoot tr.audit .form-group {    
-  margin-bottom: 5px;
+.mb-template .container:before, 
+.mb-template .container:after, 
+.mb-template .navbar:before, 
+.mb-template .navbar:after {
+  content: " ";
+  display: table;
 }
 
-/* Make kendo widgets fit nicely into bootstrap columns */
-.k-autocomplete, 
-.k-combobox, 
-.k-datepicker, 
-.k-timepicker, 
-.k-datetimepicker, 
-.k-colorpicker, 
-.k-numerictextbox, 
-.k-dropdown, 
-.k-selectbox, 
-.k-textbox {
-  width: 100%;
+.mb-template .container {
+  width: 1170px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+}  
+
+.mb-header-container {
+  position: relative;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-position: left top;
+  width: 1170px;
+  height: 100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 15px;
+  padding-right: 15px; 
 }
 
-input.k-textbox,
-textarea.k-textbox,
-.k-ie input.k-textbox,
-.k-ie textarea.k-textbox {
-  padding: 2px 3px;
-  text-indent: 0;
+.mb-template .navbar-fixed-top {
+  border-bottom-style: solid;
+  border-radius: 0;
+  border-width: 0 0 1px;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  min-height: 50px;
+  -moz-transform: translate3d(0px, 0px, 0px);
+  -ms-transform: translate3d(0px, 0px, 0px);
+  -o-transform: translate3d(0px, 0px, 0px);
+  -webkit-transform: translate3d(0px, 0px, 0px);
+  transform: translate3d(0px, 0px, 0px);
+  display: block;
+  background-color: #F8F8F8;
+  border-bottom-color: #E7E7E7;
+  border-image-outset: 0 0 0 0;
+  border-image-repeat: stretch stretch;
+  border-image-slice: 100% 100% 100% 100%;
+  border-image-source: none;
+  border-image-width: 1 1 1 1;
 }
 
-input.k-numerictextbox {
-  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-  box-sizing: border-box;         /* Opera/IE 8+ */
-  height: 2.13em;
-  padding: 2px 3px;
-  text-align: right;
-  text-indent: 0;
-  width: 100%;  
+.mb-header {
+  height: 100px;
+  background-color: #222222;
 }
 
-td.right-align-numeric,
-div.right-align-numeric,
-th.k-header.right-align-numeric {
-  text-align: right; 
+i.mb-app-title-image {
+  position: absolute;
+  top: 20px;  
+  color: #FFF;
+  font-size: 64px;
 }
 
-div.right-align-numeric.negative,
-th.k-header.right-align-numeric.negative {
-  color: #8a6d3b;
+i.mb-app-title-image.img1 {
+  right: 15px;
 }
 
-textarea.k-textbox {
-  height: 55px;  
+i.mb-app-title-image.img2 {
+  right: 95px;
 }
 
-div.btn-group.menu button,
-div.btn-group.menu ul,
-a.btn.menu {
-  font-size: 12px;
+i.mb-app-title-image.img3 {
+  right: 175px;
 }
 
-table.ozone thead,
-table.ozone tfoot {
-  background-color: #F0F0F0;
+i.mb-app-title-image-inner {
+  position: absolute;
+  top: 40px;  
+  color: #FFF;
+  font-size: 22px;
 }
 
-.input-group button {
-  font-size: 10px;
-  padding: 4px 5px;       
+i.mb-app-title-image-inner.img1 {
+  right: 37px;
 }
 
-/* ----------------------------------------------------------------------------------------------------------------------------------
- * Modal styles
- * ------------
- *
- * Kendo grids and other things do not work as expected in IE in Bootstrap modals (as at 2014-02-17), so swapping to kendo windows.
- * See: http://www.telerik.com/forums/grid-not-filtering-in-ie9
- * ----------------------------------------------------------------------------------------------------------------------------------
- */
-
-.site-modal {  
+i.mb-app-title-image-inner.img2 {
+  right: 117px; 
 }
 
-.modal-body thead th,
-.modal-body tbody td,
-.modal-body .k-grid-pager .k-pager-info.k-label 
-.site-modal-body thead th,
-.site-modal-body tbody td,
-.site-modal-body .k-grid-pager .k-pager-info.k-label {
-  font-size: 10px;
+i.mb-app-title-image-inner.img3 {
+  right: 197px;
 }
 
-div.site-modal-footer {
-  padding-top: 8px;  
-  text-align: right;
+img.mb-app-title-image {    
+  position: absolute;
+  top: 20px;
+  right: 15px;  
+  -ms-interpolation-mode: bicubic;
 }
 
-/* ----------------------------------------------------------------------------------------------------------------------------------
- * Error styles
- * ------------
- *
- * Works in conjunction with formHelper.js and *.BootstrapValidationSummaryFor(...) to give rough indications of the fields that
- * need attention before form submission can succeed. 
- * ----------------------------------------------------------------------------------------------------------------------------------
- */
-
-.has-warning label {
-  color: #8a6d3b;
+.mb-app-title {
+  position: absolute;
+  top: 0;
+  left: 15px;
+  padding-top: 5px;
+  height: 100px;
+  font-size: 64px;
+  color: white;     
+  font-weight: 400;
+  text-align: left;  
+  text-rendering: optimizelegibility;      
+  -webkit-font-smoothing: antialiased;     
+  line-height: 1.42857;
 }
 
-/* not sure if this is working */
-.has-warning .k-widget > span
- {
-  border-color: #8a6d3b;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
-          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+.mb-title-font {
+  font-family: Roboto, sans-serif;
 }
-
-.input-validation-error button.btn {
-  border-top-color: #8a6d3b;
-  border-right-color: #8a6d3b;  
-  border-bottom-color: #8a6d3b;
-}
-
-div.row.validation-error {
-  margin-top: -5px; 
-  margin-bottom: 10px;
-}
-
-div.row.validation-error div.list-group.field-validation-errors {
-  margin-top: 5px; 
-  margin-bottom: 0px;
-}
-
-div.row.has-warning div.k-grid {
-  border-color: #8a6d3b;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
-          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);  
-}
-
-/*
- -> not working/necessary?
-
-.has-warning .help-block,
-.has-warning .control-label,
-.has-warning .radio,
-.has-warning .checkbox,
-.has-warning .radio-inline,
-.has-warning .checkbox-inline {
-  color: #8a6d3b;
-}
-
-.has-warning .input-group-addon {
-  color: #8a6d3b;
-  background-color: #fcf8e3;
-  border-color: #8a6d3b;
-}
-
-.has-warning .form-control-feedback {
-  color: #8a6d3b;
-}
-*/

@@ -1,0 +1,28 @@
+﻿@{
+  var title = "PN Library New Titles";
+  title = "Testing";
+}
+
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">      
+  <div class="mb-header">
+    <div class="mb-header-container">
+      <i class="fa fa-comment-o mb-app-title-image img1"></i>      
+      <i class="fa fa-comment-o mb-app-title-image img2"></i>      
+      <i class="fa fa-comment-o mb-app-title-image img3"></i>      
+
+      <i class="glyphicon glyphicon-book mb-app-title-image-inner img1"></i>
+      <i class="glyphicon glyphicon-book mb-app-title-image-inner img2"></i>
+      <i class="glyphicon glyphicon-book mb-app-title-image-inner img3"></i>
+      
+      <div class="mb-app-title mb-title-font">        
+        @title
+      </div> 
+    </div>    
+  </div>
+  
+  <div class="menu container">    
+    @{
+      Html.RenderPartial("_Menu");
+    }      
+  </div>
+</nav>

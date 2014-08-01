@@ -9,6 +9,6 @@
     public static MvcHtmlString ToJson(this object obj)
     {
       return new MvcHtmlString(JsonConvert.SerializeObject(obj));
-    }
+    }    
   }
 }

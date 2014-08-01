@@ -3,7 +3,7 @@
   using System.Data.SqlClient;
   using System.Web.Configuration;
 
-  using MB.LibraryRss.WebUi.Interfaces;
+  using MB.LibraryRss.WebUi.Infrastructure.Orm.Interfaces;
 
   public class ConnectionService : IConnectionService
   {

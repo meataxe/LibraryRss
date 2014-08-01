@@ -1,18 +1,24 @@
-﻿@using AppfailReporting.Mvc
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
   <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">    
+    <meta name="viewport" content="width=device-width, initial-scale=1">    
+
     <title>@ViewBag.Title</title>
     
-    @*  Ensure the best rendering possible in each supported version of Internet Explorer.  *@
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link type="image/x-icon" rel="shortcut icon" href="~/Assets/img/favicon.ico" />           
 
     <link type="text/css" rel="stylesheet" href="http://cdn.kendostatic.com/2014.1.318/styles/kendo.common.min.css" />
     <link type="text/css" rel="stylesheet" href="http://cdn.kendostatic.com/2014.1.318/styles/kendo.default.min.css" />
     <link type="text/css" rel="stylesheet" href="~/Assets/css/bootstrap.min.css" />    
-    <link type="text/css" rel="stylesheet" href="~/Assets/css/Site.css" />
-   
+    
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700,500,900italic,900,700italic,500italic,400italic,300italic,100italic,100' rel='stylesheet' type='text/css'>
+    <link type="text/css" rel="stylesheet" href="~/Assets/css/Site.css" />    
+
     @Scripts.Render("~/bundles/js/jquery")
         
     <script src="http://cdn.kendostatic.com/2014.1.318/js/kendo.all.min.js"></script>
@@ -21,10 +27,12 @@
 
     @Scripts.Render("~/bundles/js/bootstrap")
     @Scripts.Render("~/bundles/js/html5")
+    @Scripts.Render("~/bundles/js/app")
   </head>
   <body>
     @{
       Culture = "en-NZ";
+      Html.RenderPartial("_NavBar");      
     }
     
     <div class="content-container">
@@ -34,7 +42,5 @@
     </div>    
     
     @RenderSection("scripts", false)
-  </body>
-  
-  @Html.IncludeAppfailOverlay()
+  </body>    
 </html>

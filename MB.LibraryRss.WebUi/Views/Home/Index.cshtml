@@ -1,5 +1,5 @@
 ﻿@using MB.LibraryRss.WebUi.Infrastructure.Helpers
-@model List<MB.LibraryRss.WebUi.Domain.TitleResult>
+@model MB.LibraryRss.WebUi.ViewModel.HomeIndexViewModel
 
 @{
   ViewBag.Title = "New Titles";
@@ -10,11 +10,20 @@
     <tr>
       <th colspan="4">
         <h3>
-          @ViewBag.Title 
+          @ViewBag.Title   
           
-          <small> | @Html.ActionLink("Admin", "Index", "Admin")</small>
-          <button type="button" class="btn btn-info btn-xs" id="refresh">Refresh</button>
+          <small>
+            @if (Model.TitleResults == null || !Model.TitleResults.Any())
+            {
+              @Model.Message@(". ")
 
+              @Html.ActionLink("Try refreshing.", "RefreshTitles", "Admin")
+            }
+            else
+            {
+              @Model.Message
+            }
+          </small>                            
         </h3>             
       </th>
     </tr>  
@@ -31,23 +40,7 @@
 {
   <script>
     $(document).ready(function() {      
-      var gridHeight = 0.8 * $(window).height();
-
-      var initPage = function (model) {
-        if (model) {
-          initGrid(model);
-        } else {
-          refreshDbAndUpdateGrid();
-        }
-      };
-
-      var refreshDbAndUpdateGrid = function() {
-        $.ajax({
-          url: '/Home/RefreshTitles'
-        }).done(function(data) {
-          initGrid(data.Data);
-        });
-      };
+      var gridHeight = $(window).height() - 276;
 
       var initGrid = function (data) {
         $("#title-table").kendoGrid({
@@ -109,11 +102,7 @@
         });
       };
 
-      $("#refresh").on("click", function () {
-        refreshDbAndUpdateGrid();
-      });
-
-      initPage(@Model.ToJson());
+      initGrid(@Model.TitleResults.ToJson());
     });
   </script>
 }

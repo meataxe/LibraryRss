@@ -26,5 +26,12 @@
 
       return feeds == null || !feeds.Any() ? (DateTime?)null : feeds.Max(f => f.FeedLastUpdated);
     }
+
+    public DateTime? GetMaxInserted()
+    {
+      var feeds = this.FetchAll();
+
+      return feeds == null || !feeds.Any() ? (DateTime?)null : feeds.Max(f => f.Inserted);
+    }
   }
 }

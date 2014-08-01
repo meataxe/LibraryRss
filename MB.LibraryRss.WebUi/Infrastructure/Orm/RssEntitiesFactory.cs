@@ -3,7 +3,7 @@
   using System.Data.Entity.Infrastructure;
   using System.Web.Mvc;
 
-  using MB.LibraryRss.WebUi.Interfaces;
+  using MB.LibraryRss.WebUi.Infrastructure.Orm.Interfaces;
 
   public class RssEntitiesFactory : IDbContextFactory<RssEntities>
   {

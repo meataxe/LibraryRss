@@ -10,7 +10,6 @@
   using global::Autofac.Integration.WebApi;
 
   using MB.LibraryRss.WebUi.Infrastructure.Orm;
-  using MB.LibraryRss.WebUi.Infrastructure.Orm.Repos;
 
   public class WebUiModule : Module
   {

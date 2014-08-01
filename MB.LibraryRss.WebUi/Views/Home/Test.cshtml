@@ -1,0 +1,68 @@
+﻿@using MB.LibraryRss.WebUi.Infrastructure.Helpers
+@model MB.LibraryRss.WebUi.ViewModel.HomeIndexViewModel
+
+@{
+  ViewBag.Title = "New Titles";
+}
+
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th colspan="4">        
+        <h3>
+          @ViewBag.Title   
+          
+          <small>
+            @if (Model.TitleResults == null || !Model.TitleResults.Any())
+            {
+              @Model.Message@(". ")
+
+              @Html.ActionLink("Try refreshing.", "RefreshTitles", "Admin")
+            }
+            else
+            {
+              @Model.Message
+            }
+          </small>                            
+          
+          <button id="show-score-table" class="btn btn-xs btn-info pull-right">Title Scores</button>        
+        </h3>                     
+      </th>
+    </tr>  
+  </thead>
+  <tbody>    
+  </tbody>
+</table>
+
+<div id="list-wrapper" style="margin-top: -22px; font-size: 11px; border-bottom-color: #C5C5C5; border-bottom-width: 1px; border-bottom-style: solid;">
+  <div id="title-table"></div>
+</div> 
+
+<div id="score-window">
+  <div id="score-table" style="font-size: 11px;"></div> 
+
+  <div id="score-table-footer" style="margin-top: 10px;">
+    <button id="score-table-help" class="btn btn-sm btn-info">Help</button>        
+    <button id="score-table-cancel" class="btn btn-sm btn-default pull-right">Cancel</button>        
+    <button id="score-table-save" class="btn btn-sm btn-primary pull-right" style="width: 39px; margin-right: 10px;">Save</button>            
+  </div>  
+</div>
+
+<div id="help-window">
+  <ul>
+    <li>Data from each title is matched with text in this list.</li>
+    <li>If a match is found, the matching score is added to the title score.</li>
+    <li>Titles with score at least zero are shown by default.</li>
+    <li>Saving re-calculates the scores.</li>
+  </ul>   
+</div>
+
+@section scripts
+{  
+  <script>
+    /*global $, LIBRARYRSS*/
+    $(document).ready(function () {
+      LIBRARYRSS.pages.initTest(@Model.TitleResults.ToJson());
+    });
+  </script> 
+}

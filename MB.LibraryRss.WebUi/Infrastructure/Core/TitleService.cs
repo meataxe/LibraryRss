@@ -1,7 +1,7 @@
 ﻿namespace MB.LibraryRss.WebUi.Infrastructure.Core
 {
+  using System;
   using System.Collections.Generic;
-  using System.IO;
   using System.Linq;
 
   using CsQuery;
@@ -14,42 +14,43 @@
   public class TitleService : ITitleService
   {
     private readonly IDownloadService downloadService;
-    private readonly ICustomFeedFactory feedFactory;
+    private readonly ITitleFeedFactory feedFactory;
     private readonly ITitleAnalysisService analysisService;
-    private readonly IPersistanceService persistanceService;
+    private readonly ITitleDataService titleDataService;
+    private readonly ISettingDataService settingDataService;
 
-    public TitleService(IDownloadService downloadService, ICustomFeedFactory feedFactory, ITitleAnalysisService analysisService, IPersistanceService persistanceService, IFeedSourceFactory feedSourceFactory)
+    public TitleService(ITitleDataService titleDataService, ISettingDataService settingDataService, IDownloadService downloadService, ITitleFeedFactory feedFactory, ITitleAnalysisService analysisService)
     {
       this.downloadService = downloadService;
       this.feedFactory = feedFactory;
       this.analysisService = analysisService;
-      this.persistanceService = persistanceService;
-
-      this.FeedSource = feedSourceFactory.GetFeedSource();      
+      this.titleDataService = titleDataService;
+      this.settingDataService = settingDataService;
     }
-
-    public FeedSource FeedSource { get; set; }    
 
     public List<TitleResult> GetTitles()
     {
-      return this.persistanceService.GetLatest();
+      return this.titleDataService.GetLatest();
     }
 
-    public List<TitleResult> RefreshTitles()
+    public List<TitleResult> RefreshTitles(bool force = false)
     {
-      var feedXml = this.FeedSource.SourceType == SearchSource.File
-        ? File.ReadAllLines(this.FeedSource.Source).Aggregate(string.Empty, (current, next) => current + "\r\n" + next).Trim()
-        : this.downloadService.Download(this.FeedSource.Source);
-            
-      var feed = this.feedFactory.CreateFeed(feedXml);      
-
-      // check updated tag against db, if newer then continue, else halt
-      var lastUpdated = this.persistanceService.GetLastUpdated();
-      if (lastUpdated == null || lastUpdated < feed.LastUpdated)
+      if (!force || !this.OkToStart())
       {
-        var titles = this.GetTitlesFromFeed(feed);
-        this.persistanceService.Save(titles, feed.LastUpdated);
-        return titles;
+        return this.GetTitles();
+      }
+
+      this.settingDataService.AddOrUpdateRefreshTaskExecutionStartDate(DateTime.Now);
+
+      try
+      {
+        var titleFeed = this.feedFactory.DefaultFeed();        
+        var titles = this.GetTitlesFromFeed(titleFeed);
+        this.titleDataService.Save(titles, titleFeed.LastUpdated);        
+      }
+      finally
+      {
+        this.settingDataService.AddOrUpdateRefreshTaskExecutionStartDate(null);
       }
 
       return this.GetTitles();
@@ -60,11 +61,11 @@
       return new TitleResult
       {
         Author = i.Author,
-        Categories = i.Categories,
+        Categories = i.Categories.ToList(),
         Content = i.Content,
         DatePublished = i.DatePublished,
         Id = i.Id,
-        Url = i.Link,
+        ExtraInfoUrl = i.Link,        
         Title = i.Title
       };
     }
@@ -83,13 +84,15 @@
       title.Author = !string.IsNullOrEmpty(title.Author) ? title.Author : dom["div.INITIAL_AUTHOR_SRCH"].Text().Trim();
       title.Isbn = dom["div.ISBN"].Text().Trim();
       title.ShelfLocation = GetShelfLocations(dom["table.detailItemTable tr.detailItemsTableRow td:nth-child(2)"].Text());
-      title.IsNonFiction = this.analysisService.GetNonFictionStatus(title.ShelfLocation) ? "Yes" : "No";
-      title.ShelfLocationScore = this.analysisService.GetStatus(title.ShelfLocation);
+      title.IsFiction = this.analysisService.IsNonFiction(title.ShelfLocation) ? "No" : "Yes";      
       title.SubjectTerms = dom["div.SUBJECT_TERM a"].Select(a => a.GetAttribute("title").Trim()).ToList();
+      title.Score = this.analysisService.GetScore(title);
 
       // A call to this url may not work outside of the pncc domain:
       title.LargeImageUrl = string.Format("https://secure.syndetics.com/index.aspx?type=xw12&client=nlonzsd&upc=&oclc=&isbn={0}/LC.JPG", title.Isbn);
       title.SmallImageUrl = title.LargeImageUrl.Replace("LC.JPG", "SC.JPG");
+
+      title.TitleUrl = string.Format("https://ent.kotui.org.nz/client/en_AU/pn/search/results?qu={0} {1}", title.Title, title.Author);
 
       return title;
     }
@@ -97,9 +100,17 @@
     private List<TitleResult> GetTitlesFromFeed(IFeed feed)
     {      
       var results = feed.Items.OrderBy(i => i.Title).Select(GetTitleResult).ToList();
-      var pages = this.downloadService.Download(results.Select(r => r.Url));      
+      var pages = this.downloadService.Download(results.Select(r => r.ExtraInfoUrl));
 
-      return results.Select(r => this.GetExtraInfo(r, pages[r.Url])).ToList();
-    }          
+      return results.Select(r => this.GetExtraInfo(r, pages[r.ExtraInfoUrl])).ToList();
+    }  
+    
+    // Only allow to start if not started, or started >10mins ago
+    private bool OkToStart()
+    {
+      var lastStartDate = this.settingDataService.GetRefreshTaskExecutionStartDate();
+
+      return !lastStartDate.HasValue || (lastStartDate.Value.AddMinutes(10) <= DateTime.Now);
+    }   
   }
 }

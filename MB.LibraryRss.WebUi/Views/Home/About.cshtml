@@ -1,31 +1,38 @@
-﻿@{
-  ViewBag.Title = "About";
-
-  var freeSpace = this.ViewBag.FreeSpace as decimal?;
-  var freeSpaceDesc = freeSpace.HasValue ? string.Format("{0}mb", freeSpace) : "unknown";
-}
+﻿@model MB.LibraryRss.WebUi.ViewModel.HomeIndexViewModel
 
 <table class="table table-bordered table-striped">
   <thead>
     <tr>
-      <th colspan="2">
+      <th colspan="4">
         <h3>
-          @ViewBag.Title
-          
-          <small> | @Html.ActionLink("Home", "Index")</small>
+          About
         </h3>             
       </th>
     </tr>  
-    <tr>
-      <th style="width: 150px;">Property</th>
-      <th>Value</th>
-    </tr>
   </thead>
   <tbody>
     <tr>
-      <td>DB Free Space</td>
-      <td>@freeSpaceDesc</td>
+      <td>
+        <p>
+          A rough front-end over the PNCC library new titles RSS feed.
+        </p>
+        
+        <p>
+          Created because the oldies sometimes hide the new books to reserve when they come out, and to show up the other new books that don't have their own "new titles" shelf like the adults fiction section does.
+        </p>
+        
+        <p>
+          This attempts to parse the rss feed, visit the page for each item on it, pull some extra data about the title and use it to rate the thing on how likely I am to want to reserve it using basic black- and white-lists for keywords in the subject or section fields.
+        <p>
+          
+        <p>
+          The source feed is <a target="_" href="https://ent.kotui.org.nz/client/rss/hitlist/pn/qu=newbks-pn&dt=list&st=PD">here</a>. 
+        </p>
+        
+        <p>
+          The source is <a target="_" href="https://github.com/meataxe/LibraryRss">here</a>.
+        </p>
+      </td>
     </tr>    
   </tbody>
 </table>
-

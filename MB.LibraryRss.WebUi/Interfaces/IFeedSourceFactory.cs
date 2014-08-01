@@ -4,6 +4,6 @@
   
   public interface IFeedSourceFactory
   {
-    FeedSource GetFeedSource();
+    FeedSource FeedSource { get; }
   }
 }

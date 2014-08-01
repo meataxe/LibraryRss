@@ -12,6 +12,8 @@
 
     private FeedRepository feedRepository;
 
+    private SettingRepository settingRepository;
+
     private bool disposed;
 
     public UnitOfWork(RssEntities context)
@@ -32,6 +34,14 @@
       get
       {
         return this.feedRepository ?? (this.feedRepository = new FeedRepository(this.context));
+      }
+    }
+
+    public SettingRepository SettingRepository
+    {
+      get
+      {
+        return this.settingRepository ?? (this.settingRepository = new SettingRepository(this.context));
       }
     }
 

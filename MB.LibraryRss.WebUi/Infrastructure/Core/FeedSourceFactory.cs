@@ -5,15 +5,20 @@
 
   public class FeedSourceFactory : IFeedSourceFactory
   {
-    private static readonly FeedSource FeedSource = new FeedSource
+    public FeedSourceFactory()
+    {
+      this.FeedSource = new FeedSource
       {
         Source = @"https://ent.kotui.org.nz/client/rss/hitlist/pn/qu=newbks-pn&dt=list&st=PD",
         SourceType = SearchSource.Url
-      }; 
-
-    public FeedSource GetFeedSource()
-    {
-      return FeedSource;
+      };
     }
+
+    public FeedSourceFactory(FeedSource feedSource)
+    {
+      this.FeedSource = feedSource;
+    }
+
+    public FeedSource FeedSource { get; private set; }
   }
 }

@@ -6,7 +6,6 @@
   using System.Data.SqlClient;
 
   using MB.LibraryRss.WebUi.Infrastructure.Orm.Interfaces;
-  using MB.LibraryRss.WebUi.Interfaces;
 
   public class SqlService : IDatastoreService
   {
@@ -79,7 +78,8 @@
           using (var rdr = cmd.ExecuteReader())
           {
             rdr.Read();
-            return decimal.Parse(rdr[3].ToString());
+
+            return !rdr.HasRows ? 0 : decimal.Parse(rdr[3].ToString());
           }
         }
       }

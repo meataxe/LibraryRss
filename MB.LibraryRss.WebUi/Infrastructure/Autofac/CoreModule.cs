@@ -1,8 +1,8 @@
 ﻿namespace MB.LibraryRss.WebUi.Infrastructure.Autofac
 {
-  using MB.LibraryRss.WebUi.Domain;
-
   using global::Autofac;
+
+  using MB.LibraryRss.WebUi.Domain;
 
   using QDFeedParser.Xml;
 

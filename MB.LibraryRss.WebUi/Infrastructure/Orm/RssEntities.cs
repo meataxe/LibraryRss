@@ -2,8 +2,8 @@
 {
   using System.Data.Entity;
 
+  using MB.LibraryRss.WebUi.Infrastructure.Orm.Interfaces;
   using MB.LibraryRss.WebUi.Infrastructure.Orm.Models;
-  using MB.LibraryRss.WebUi.Interfaces;
 
   public class RssEntities : DbContext
   {
@@ -16,11 +16,14 @@
 
     public DbSet<Element> Elements { get; set; }
 
+    public DbSet<Setting> Settings { get; set; }
+
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       // Explicit naming
       modelBuilder.Entity<Feed>().ToTable("Feeds");
       modelBuilder.Entity<Element>().ToTable("Elements");
+      modelBuilder.Entity<Setting>().ToTable("Settings");
     }
   }
 }

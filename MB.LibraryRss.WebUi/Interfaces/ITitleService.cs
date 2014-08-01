@@ -6,10 +6,8 @@
 
   public interface ITitleService
   {
-    FeedSource FeedSource { get; set; }    
-
     List<TitleResult> GetTitles();
 
-    List<TitleResult> RefreshTitles();
+    List<TitleResult> RefreshTitles(bool force = false);
   }
 }
